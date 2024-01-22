@@ -11,7 +11,10 @@
 			});
 		}
 
-		chrome.runtime.sendMessage({urls});
+		chrome.runtime.sendMessage({
+			action: 'download',
+			urls: urls
+		});
 	} else {
 		console.log('No images found on this page.');
 	}
