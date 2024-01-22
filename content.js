@@ -5,7 +5,10 @@
 		var urls = [];
 
 		for (var i = 0; i < images.length; i++) {
-			urls.push(images[i].src);
+			urls.push({
+				src: images[i].src,
+				filename: "image" + i + ".webp"
+			});
 		}
 
 		chrome.runtime.sendMessage({urls});
