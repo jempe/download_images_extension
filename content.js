@@ -25,10 +25,17 @@
 			log('Found ' + images.length + ' images on this page.');
 			var urls = [];
 
+			const prefix = snake_case(document.querySelector('h1').innerText);
+
 			for (var i = 0; i < images.length; i++) {
+
+				const number_with_leading_zero = ("0" + (i + 1)).slice(-2);
+
+				const suffix = snake_case(images[i].closest('.step').querySelector('h3 > span.text-xl > span').innerText);
+
 				urls.push({
 					src: images[i].src,
-					filename: "image" + i + ".webp"
+					filename: prefix + number_with_leading_zero + "_" + suffix + ".webp"
 				});
 			}
 
@@ -43,5 +50,12 @@
 
 	function log(message) {
 		console.log("Download Image Extension:", message);
+	}
+
+	function snake_case(str) {
+		return str.replace(/\W+/g, " ")
+			.split(/ |\B(?=[A-Z])/)
+			.map(word => word.toLowerCase())
+			.join('_');
 	}
 })();
