@@ -14,6 +14,22 @@
 
 			login_button.closest("div").appendChild(download_button);
 
+			const crop_images_checkbox = document.createElement('input');
+			crop_images_checkbox.type = "checkbox";
+			crop_images_checkbox.id = "crop_images";
+			crop_images_checkbox.style.marginLeft = "5px";
+			crop_images_checkbox.style.marginRight = "5px";
+			crop_images_checkbox.style.border = "1px solid #ccc";
+			crop_images_checkbox.style.borderRadius = "4px";
+
+			const crop_images_label = document.createElement('label');
+			crop_images_label.htmlFor = "crop_images";
+			crop_images_label.innerText = "Crop?";
+			crop_images_label.style.fontSize = "12px";
+
+			login_button.closest("div").appendChild(crop_images_checkbox);
+			login_button.closest("div").appendChild(crop_images_label);
+
 			log('Addded download button to page.');
 		} else {
 			log('No steps found on this page.');
@@ -23,7 +39,33 @@
 		log('No login button found on this page.');
 	}
 
+	function get_cropped_image(image) {
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+
+		const image_container = image.closest("div[style*='aspect-ratio']");
+
+		canvas.width = image_container.offsetWidth;
+		canvas.height = image_container.offsetHeight;
+
+		const clip_container = image_container.querySelector("div");
+
+		const tranform_data = window.getComputedStyle(clip_container).transform.split(",");
+
+		const tranlate_x = parseFloat(tranform_data[4].trim());
+		const tranlate_y = parseFloat(tranform_data[5].trim().replace(")", ""))
+
+		ctx.drawImage(image, tranlate_x, tranlate_y, 
+			clip_container.getBoundingClientRect().width, clip_container.getBoundingClientRect().height);
+
+		const dataUrl = canvas.toDataURL('image/webp', 1.0);
+
+		return dataUrl;
+	}
+
 	function get_images() {
+
+		const crop_images = document.getElementById("crop_images").checked;
 
 		// get all step images
 		const images = document.querySelectorAll('.step img');
@@ -52,12 +94,24 @@
 				// create a filename for the image
 				const file_name = prefix + number_with_leading_zero + "_" + suffix + ".webp";
 
-				content +=  (i + 1)  + ". " + step_description + "\n\n";
+				if(crop_images) {
+					content += "### " + step_title + "\n\n";
+				} else {
+					content +=  (i + 1)  + ". ";
+				}
+
+				content += step_description + "\n\n";
 
 				content += "![" + step_title + "](https://raw.githubusercontent.com/wiki/github_user/wiki_name/wiki_images_path/" + file_name + ")\n\n";
 
+				var image_url = images[i].src;
+
+				if(crop_images) {
+					image_url = get_cropped_image(images[i]);
+				}
+			
 				urls.push({
-					src: images[i].src,
+					src: image_url,
 					filename: file_name
 				});
 			}
